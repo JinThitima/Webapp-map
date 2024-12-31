@@ -1,0 +1,75 @@
+/* Profile.css */
+
+.profile-card {
+  background: #f7f7f7; /* ใช้สีพื้นหลังที่เรียบง่าย */
+  border-radius: 20px;  /* เพิ่มมุมโค้งให้กรอบ */
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  /* เงาบาง ๆ เพื่อเพิ่มมิติ */
+}
+
+.profile-img {
+  object-fit: cover;
+  border: 4px solid #fff;  /* ขอบสีขาวรอบ ๆ รูปภาพ */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* เพิ่มเงาที่รูปภาพ */
+}
+
+h4, h5 {
+  font-weight: 600;
+  color: #333;  /* ใช้สีข้อความเข้ม */
+}
+
+hr {
+  border-color: #e1e1e1; /* สีขอบสำหรับการแบ่ง */
+}
+
+.status-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.card-body div {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.card-body div strong {
+  font-weight: 500;
+}
+
+.card-body {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+/* CSS สำหรับการจัดตำแหน่งรูปภาพตรงกลาง */
+.profile-image-container {
+  display: flex;
+  justify-content: center; /* จัดตำแหน่งให้รูปภาพอยู่กลางแนวนอน */
+  align-items: center;     /* จัดตำแหน่งให้รูปภาพอยู่กลางแนวตั้ง */
+  height: 200px;           /* กำหนดความสูงให้เพียงพอสำหรับการจัดตำแหน่งกลาง */
+}
+
+.profile-img {
+  object-fit: cover;       /* ให้รูปภาพไม่ผิดรูป */
+  border: 4px solid #fff;  /* ขอบสีขาวรอบ ๆ รูปภาพ */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* เงาเบา ๆ ให้รูปภาพ */
+}
+/* ใช้ flexbox เพื่อให้แต่ละคอลัมน์มีขนาดเท่ากัน */
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%; /* ตั้งความสูงขั้นต่ำเพื่อให้กรอบมีขนาดเท่ากัน */
+}
+
+/* ปรับเพิ่มการจัดเรียงรูปภาพตรงกลาง */
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px; /* เพิ่มช่องว่างระหว่างรูปภาพและข้อมูล */
+}
+
+.profile-img {
+  object-fit: cover;
+  border: 4px solid #fff; /* ขอบสีขาว */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* เงาเบา ๆ */
+}

@@ -1,0 +1,43 @@
+.login-background {
+  background-color: #78b7c6; /* สีน้ำเงินสดใส */
+  height: 100vh; /* ความสูงเต็มหน้าจอ */
+  display: flex;
+  align-items: center;
+}
+
+.login-container {
+  z-index: 1;
+}
+
+.login-card {
+  background-color: rgba(255, 255, 255, 0.9); /* ทำให้พื้นหลังของการล็อกอินโปร่งใส */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px; /* กำหนดความกว้างสูงสุด */
+  margin: 0 auto; /* จัดให้กึ่งกลางในแนวนอน */
+  padding: 30px; /* เพิ่ม padding เพื่อให้มีพื้นที่ภายในมากขึ้น */
+}
+
+.login-image {
+  margin-bottom: 20px; /* เพิ่มระยะห่างระหว่างภาพกับข้อความด้านล่าง */
+}
+
+.bg-success {
+  background-color: green !important; /* สีเขียว */
+}
+
+.bg-warning {
+  background-color: yellow !important; /* สีเหลือง */
+}
+
+.bg-white {
+  background-color: white !important; /* สีขาว */
+}
+
+.text-white {
+  color: white !important; /* สีตัวอักษรขาว */
+}
+
+.text-dark {
+  color: black !important; /* สีตัวอักษรมืด */
+}

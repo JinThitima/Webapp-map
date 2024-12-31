@@ -1,0 +1,32 @@
+.nav-link {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
+  color: #FFD700; /* Gold color for text on hover */
+}
+
+.nav-dropdown .dropdown-item {
+  transition: background-color 0.3s;
+}
+
+.nav-dropdown .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
+}
+
+.dropdown-toggle::after {
+  display: none; /* ลบลูกศรออก */
+}
+
+.navbar-collapse {
+  width: 100%; /* หรือกำหนดความกว้างตามที่ต้องการ เช่น 1200px */
+}
+
+.nav-item {
+  margin-right: 20px; /* ปรับระยะห่างตามที่ต้องการ */
+}
+
+.nav-dropdown .dropdown-toggle::after {
+  display: none; /* ซ่อนลูกศรชี้ลง */
+}

@@ -1,0 +1,7 @@
+.dropdown-toggle::after {
+  display: none; /* ลบลูกศรออก */
+}
+
+.nav-link {
+  margin-right: 20px; /* ปรับระยะห่างตามที่ต้องการ */
+}

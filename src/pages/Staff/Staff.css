@@ -1,0 +1,38 @@
+.table {
+  background-color: #f8f9fa; /* สีพื้นหลังของตาราง */
+}
+
+.table th {
+  background-color: #e9ecef; /* สีพื้นหลังของหัวข้อ */
+  color: #000; /* สีตัวอักษรในหัวข้อ */
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2; /* สีพื้นหลังสำหรับแถวที่คู่ */
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: #ffffff; /* สีพื้นหลังสำหรับแถวที่คี่ */
+}
+
+/* Staff.css */
+.status-select {
+  border: 1px solid #ced4da; /* กำหนดสีขอบ */
+  border-radius: 0.25rem; /* มุมโค้ง */
+  padding: 0.375rem 0.75rem; /* ระยะห่างด้านใน */
+  transition: border-color 0.2s ease-in-out; /* การเปลี่ยนสีขอบ */
+}
+
+.status-select:focus {
+  border-color: #80bdff; /* เปลี่ยนสีขอบเมื่อมีการโฟกัส */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* เงาเมื่อมีการโฟกัส */
+}
+
+.custom-hr {
+  border: 0; /* เอาขอบออก */
+  height: 2px; /* ความสูงของเส้น */
+  background-color: #3f4041; /* สีของเส้น (เปลี่ยนตามต้องการ) */
+  width: 100%; /* ความกว้างของเส้น */
+  margin-top: 10px; /* ระยะห่างด้านบน */
+  margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+}

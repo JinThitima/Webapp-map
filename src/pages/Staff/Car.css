@@ -1,0 +1,57 @@
+/* Staff.css */
+
+.modal-content {
+  border-radius: 10px; /* ทำมุมกรอบให้โค้งมน */
+  box-shadow: 0 4px 20px rgba(247, 246, 246, 0.2); /* เพิ่มเงาให้กับกรอบ */
+  transition: transform 0.3s ease; /* เพิ่มการเคลื่อนไหว */
+}
+
+.modal-header-add {
+  background-color: #007bff; /* เปลี่ยนสีพื้นหลังของ header */
+  color: white; /* เปลี่ยนสีข้อความ */
+  border-top-left-radius: 10px; /* ทำมุมโค้งมน */
+  border-top-right-radius: 10px; /* ทำมุมโค้งมน */
+}
+
+.modal-header-edit {
+  background-color: #ffc107; /* สีเหลือง */
+  color: white; /* เปลี่ยนสีข้อความให้ขาว */
+  border-top-left-radius: 10px; /* ทำมุมโค้งมน */
+  border-top-right-radius: 10px; /* ทำมุมโค้งมน */
+}
+
+.modal-title {
+  font-weight: bold; /* ทำให้ตัวหนังสือหนา */
+  font-size: 1.5rem; /* ปรับขนาดตัวหนังสือ */
+}
+
+.modal-body {
+  background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลังของ body */
+}
+
+.btn-primary {
+  background-color: #007bff; /* ปรับสีปุ่มบันทึก */
+  border: none; /* ไม่ให้มีขอบ */
+  transition: background-color 0.3s; /* เพิ่มการเคลื่อนไหว */
+}
+
+.btn-primary:hover {
+  background-color: #00487c; /* เปลี่ยนสีเมื่อ hover */
+}
+
+.btn-warning {
+  background-color: #ffc107; /* ปรับสีปุ่มแก้ไข */
+  border: none; /* ไม่ให้มีขอบ */
+  transition: background-color 0.3s; /* เพิ่มการเคลื่อนไหว */
+}
+
+.btn-warning:hover {
+  background-color: #d39e00; /* เปลี่ยนสีเมื่อ hover */
+}
+
+.stat-card .card-title,
+.stat-card .stat-value,
+.stat-card .stat-subtitle {
+  color: white;
+}
+
