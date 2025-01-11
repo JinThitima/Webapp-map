@@ -26,8 +26,6 @@ const Customer = () => {
   const [modalType, setModalType] = useState(""); // ใช้สำหรับจัดการ modalType
   const [selectedCustomers, setSelectedCustomers] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // คำค้นหา
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [shippingCompanies, setShippingCompanies] = useState([]);
 
   const [transportType, setTransportType] = useState("");
@@ -335,7 +333,7 @@ const Customer = () => {
                     <tr key={index}>
                       <td className="text-center">
                         <img
-                          src={cust.image || "../images/Store.png"}
+                          src={cust.image || `./images/${cust.image_customer}`}
                           alt={cust.name || "ไม่ระบุ"}
                           style={{
                             width: "80px",
@@ -548,7 +546,7 @@ const Customer = () => {
                       >
                         <option value="">-- กรุณาเลือกชื่อขนส่ง --</option>
                         {shippingCompanies.map((company) => (
-                          <option key={company.id} value={company.name}>
+                          <option key={company._id} value={company._id}>
                             {company.name}
                           </option>
                         ))}
@@ -805,7 +803,7 @@ const Customer = () => {
         >
           <Modal.Header closeButton>
             <Modal.Title style={{ display: "flex", alignItems: "center" }}>
-              <FaTrash style={{ marginRight: '8px' }}  />
+              <FaTrash style={{ marginRight: "8px" }} />
               คุณต้องการลบลูกค้า {selectedCustomers?.name} หรือไม่ ?
             </Modal.Title>
           </Modal.Header>

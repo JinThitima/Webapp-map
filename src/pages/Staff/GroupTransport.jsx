@@ -18,8 +18,10 @@ import {
 import StaffLayout from "../../layouts/StaffLayout";
 import { Link, useNavigate } from "react-router-dom";
 import { TfiArrowCircleDown } from "react-icons/tfi";
-import Route_templatesService from "../../server/Route_template"; // เพิ่มการใช้งาน EmployeesService
+import RoutetemplatesService from "../../server/Route_template"; // เพิ่มการใช้งาน EmployeesService
 import { FaTrash, FaRoad } from "react-icons/fa"; // ไอคอนจาก react-icons
+import "./GroupTransport.css"; // นำเข้าไฟล์ CSS เพื่อปรับแต่งเพิ่มเติม
+
 
 const GroupTransport = () => {
   // State สำหรับควบคุมการแสดงผลของ Modal แต่ละแบบ
@@ -27,10 +29,10 @@ const GroupTransport = () => {
   const [route_templates, setRoute_templates] = useState([]); // เปลี่ยนจาก customer เป็น employees
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // ใช้สำหรับจัดการ modalType
-  const [selectedRoute_template, setSelectedRoute_template] = useState(null);
+  const [selectedRoutetemplate, setSelectedRoutetemplate] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // คำค้นหา
 
-  // เพิ่มข้อมูล
+  //เพิ่มข้อมูล
   const [createFormData, setCreateFormData] = useState({});
   const handleChangeCreate = (event) => {
     setCreateFormData({
@@ -41,13 +43,11 @@ const GroupTransport = () => {
   const handleCreateSubmit = (event) => {
     event.preventDefault();
     console.log(createFormData);
-    Route_templatesService.create(createFormData)
+    RoutetemplatesService.create(createFormData)
       .then((res) => {
-        alert("ข้อมูลกลุ่มเส้นทางถูกบันทึกเรียบร้อยแล้ว");
+        alert("ข้อมูลพนักงานถูกบันทึกเรียบร้อยแล้ว");
         setShowModal(false); // ปิด Modal หลังจากบันทึกข้อมูลสำเร็จ
-        setCreateFormData({}); // ล้างค่าของ createFormData หลังจากบันทึกข้อมูล
-
-        fetchRoute_templates(); // รีเฟรชข้อมูลพนักงาน
+        fetchEmployees(); // รีเฟรชข้อมูลพนักงาน
 
         // ใช้ setTimeout เพื่อรอให้ Modal ปิดก่อนจะเปลี่ยนเส้นทาง
         setTimeout(() => {
@@ -71,21 +71,21 @@ const GroupTransport = () => {
     event.preventDefault();
 
     // ตรวจสอบว่า selectedEmployee มีค่า
-    if (!selectedRoute_template || !selectedRoute_template._id) {
-      alert("ไม่พบข้อมูลกลุ่มเส้นทางที่ต้องการแก้ไข");
+    if (!selectedRoutetemplate || !selectedRoutetemplate._id) {
+      alert("ไม่พบข้อมูลพนักงานที่ต้องการแก้ไข");
       return;
     }
 
     console.log("ข้อมูลที่จะส่งไป:", editFormData);
 
-    Route_templatesService.updateRoute_templates(
-      selectedRoute_template._id,
+    RoutetemplatesService.updateRoute_templates(
+      selectedRoutetemplate._id,
       editFormData
     )
       .then((res) => {
         alert("ข้อมูลกลุ่มเส้นทางถูกแก้ไขเรียบร้อยแล้ว");
         setShowModal(false); // ปิด Modal หลังจากบันทึกข้อมูลสำเร็จ
-        fetchRoute_templates(); // รีเฟรชข้อมูลพนักงาน
+        fetchRoutetemplates(); // รีเฟรชข้อมูลพนักงาน
       })
       .catch((e) => {
         console.error("เกิดข้อผิดพลาดในการแก้ไขข้อมูล", e);
@@ -95,12 +95,12 @@ const GroupTransport = () => {
 
   //ลบข้อมูล
   const handleDeleteSubmit = () => {
-    if (selectedRoute_template) {
-      Route_templatesService.deleteRoute_templates(selectedRoute_template._id) // ลบข้อมูลพนักงาน
+    if (selectedRoutetemplate) {
+      RoutetemplatesService.deleteRoute_templates(selectedRoutetemplate._id) // ลบข้อมูลพนักงาน
         .then((res) => {
           alert("ข้อมูลกลุ่มเส้นทางถูกลบเรียบร้อยแล้ว");
           setShowModal(false); // ปิด Modal หลังจากลบเสร็จ
-          fetchRoute_templates(); // รีเฟรชข้อมูลพนักงาน
+          fetchRoutetemplates(); // รีเฟรชข้อมูลพนักงาน
         })
         .catch((error) => {
           console.error("เกิดข้อผิดพลาดในการลบข้อมูล", error);
@@ -109,8 +109,8 @@ const GroupTransport = () => {
     }
   };
 
-  const fetchRoute_templates = () => {
-    Route_templatesService.getAll() // ใช้ EmployeesService
+  const fetchRoutetemplates = () => {
+    RoutetemplatesService.getAll() // ใช้ EmployeesService
       .then((res) => {
         console.log(res.data.data);
         setRoute_templates(res.data.data);
@@ -121,24 +121,24 @@ const GroupTransport = () => {
   };
 
   useEffect(() => {
-    fetchRoute_templates(); // เรียกใช้ฟังก์ชันที่แก้ไขใหม่
+    fetchRoutetemplates(); // เรียกใช้ฟังก์ชันที่แก้ไขใหม่
   }, []);
 
   const handleShowAdd = () => {
-    setSelectedRoute_template(null);
+    setSelectedRoutetemplate(null);
     setModalType("add");
     setShowModal(true);
   };
 
   const handleShowEdit = (Route) => {
-    setSelectedRoute_template(Route); // ตั้งค่าพนักงานที่ถูกเลือก
+    setSelectedRoutetemplate(Route); // ตั้งค่าพนักงานที่ถูกเลือก
     setModalType("edit");
     setShowModal(true);
     setEditFormData({ ...Route }); // ส่งค่า employee (รวมทั้ง _id) ไปใน editFormData
   };
 
   const handleShowDelete = (Route) => {
-    setSelectedRoute_template(Route);
+    setSelectedRoutetemplate(Route);
     setModalType("delete"); // ตั้งค่าประเภทของ Modal เป็น "delete"
     setShowModal(true); // แสดง Modal
   };
@@ -239,15 +239,15 @@ const GroupTransport = () => {
               responsive
               className="table-responsive"
             >
-              <thead>
+              <thead className="table-header">
                 <tr>
                   <th style={{ width: "5%" }} className="text-center">
                     ลำดับ
                   </th>
-                  <th style={{ width: "10%" }} className="text-center">
+                  <th style={{ width: "15%" }} className="text-center">
                     ชื่อเส้นทาง
                   </th>
-                  <th style={{ width: "40%" }} className="text-center">
+                  <th style={{ width: "50%" }} className="text-center">
                     รายชื่อร้านค้า
                   </th>
                   <th style={{ width: "10%" }} className="text-center">
@@ -265,87 +265,70 @@ const GroupTransport = () => {
                 ) : (
                   filteredRoute_templates.map((Route, index) => (
                     <tr key={Route.id}>
-                      {" "}
-                      {/* เพิ่ม key prop ที่มีค่าที่ไม่ซ้ำกัน */}
                       <td className="text-center">{index + 1}</td>
                       <td className="text-center">{Route.name}</td>
-                      <td className="text-start">
-                        {/* แสดง customrs 5 รายการแรก */}
-                        {Route.customers.slice(0, 5).map((c) => (
+                      <td>
+                        {Route.customers && Route.customers.length > 0 ? (
                           <>
-                            <p> {c.name}</p>
-                            <hr />
+                            {Route.customers.slice(0, 5).map((c, idx) => (
+                              <React.Fragment key={idx}>
+                                <p style={{ margin: "5px 0", color: "#555" }}>
+                                  {c.name}
+                                </p>
+                                {idx < 4 && <hr className="divider" />}
+                              </React.Fragment>
+                            ))}
+                            <Button
+                              variant="link"
+                              className="p-0 d-flex align-items-center"
+                            >
+                              <Link
+                                to={`/DetailGroupTransport/${Route._id}`}
+                                style={{
+                                  textDecoration: "underline",
+                                  color: "green",
+                                }}
+                              >
+                                เพิ่มเติม
+                              </Link>
+                              <TfiArrowCircleDown
+                                style={{ fontSize: "20px", marginLeft: "5px" }}
+                              />
+                            </Button>
                           </>
-                        ))}
-                        <Button
-                          variant="link"
-                          className="p-0 d-flex align-items-center"
-                        >
-                          <Link
-                            to={`/DetailGroupTransport/${Route._id}`}
-                            style={{
-                              textDecoration: "underline",
-                              color: "green", // เปลี่ยนเป็นสีเขียว
-                            }}
-                          >
-                            เพิ่มเติม
-                          </Link>
-                          <TfiArrowCircleDown
-                            style={{ fontSize: "20px", marginLeft: "5px" }}
-                          />
-                        </Button>
+                        ) : (
+                          <p className="text-muted">
+                            ไม่มีข้อมูลร้านค้าในเส้นทางนี้
+                          </p>
+                        )}
                       </td>
                       <td>
-                        <div
-                          className="d-flex justify-content-between flex-wrap"
-                          style={{ gap: "8px" }}
-                        >
+                        <div className="action-buttons text-center">
                           <Button
                             variant="success"
-                            className="d-flex align-items-center"
-                            to="/DetailGroupTransport"
-                            style={{
-                              backgroundColor: "#28a745", // สีเขียว
-                              borderColor: "#28a745",
-                              padding: "8px 16px",
-                              fontSize: "14px",
-                            }}
+                            className="btn-sm"
                           >
                             <Link
                               to={`/DetailGroupTransport/${Route._id}`}
                               style={{
                                 textDecoration: "underline",
-                                color: "#ffffff", // สีขาว
+                                color: "#ffffff",
                               }}
                             >
                               <BsUiChecksGrid />
                             </Link>
                           </Button>
-
                           <Button
                             variant="warning"
-                            className="d-flex align-items-center"
                             onClick={() => handleShowEdit(Route)}
-                            style={{
-                              backgroundColor: "#ffc107", // สีเหลือง
-                              borderColor: "#ffc107",
-                              padding: "8px 16px",
-                              fontSize: "14px",
-                            }}
+                            className="btn-sm"
                           >
                             <BsPencilSquare />
                           </Button>
-
                           <Button
                             variant="danger"
-                            className="d-flex align-items-center"
                             onClick={() => handleShowDelete(Route)}
-                            style={{
-                              backgroundColor: "#dc3545", // สีแดง
-                              borderColor: "#dc3545",
-                              padding: "8px 16px",
-                              fontSize: "14px",
-                            }}
+                            className="btn-sm"
                           >
                             <BsTrash />
                           </Button>
@@ -418,7 +401,6 @@ const GroupTransport = () => {
             </Form>
           </Modal.Body>
         </Modal>
-
         {/* Edit Modal */}
         <Modal
           show={modalType === "edit" && showModal}
@@ -436,6 +418,7 @@ const GroupTransport = () => {
                 <Form.Control
                   type="text"
                   placeholder="แก้ไขชื่อกลุ่มเส้นทาง"
+                  name="name"
                   value={editFormData.name || ""}
                   onChange={handleChangeEdit}
                 />
@@ -478,7 +461,6 @@ const GroupTransport = () => {
             </Form>
           </Modal.Body>
         </Modal>
-
         {/* Delete Modal */}
         <Modal
           show={modalType === "delete" && showModal}
@@ -488,13 +470,11 @@ const GroupTransport = () => {
           <Modal.Header closeButton className="modal-header-delete">
             <Modal.Title style={{ display: "flex", alignItems: "center" }}>
               <FaTrash style={{ marginRight: "8px" }} />
-              คุณต้องการลบกลุ่มเส้นทาง {selectedRoute_template?.name} หรือไม่ ?
+              คุณต้องการลบกลุ่มเส้นทาง {selectedRoutetemplate?.name} หรือไม่ ?
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>
-              ยืนยันการลบข้อมูลกลุ่มเส้นทาง {selectedRoute_template?.name} ?
-            </p>
+            <p>ยืนยันการลบข้อมูลกลุ่มเส้นทาง {selectedRoutetemplate?.name} ?</p>
           </Modal.Body>
           <Modal.Footer
             style={{
@@ -541,6 +521,7 @@ const GroupTransport = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+        <br />
       </Container>
     </StaffLayout>
   );

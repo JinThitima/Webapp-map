@@ -15,7 +15,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import StaffLayout from "../../layouts/StaffLayout";
 import EmployeesService from "../../server/Employee"; // เพิ่มการใช้งาน EmployeesService
 import { BsPerson, BsFillPersonPlusFill } from "react-icons/bs";
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa'; // ไอคอนจาก react-icons
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa"; // ไอคอนจาก react-icons
 
 const StaffUser = () => {
   const navigate = useNavigate();
@@ -102,8 +102,8 @@ const StaffUser = () => {
     }
   };
 
-  const fetchEmployees = () => {
-    EmployeesService.getAll() // ใช้ EmployeesService
+  const fetchEmployees = async () => {
+    await EmployeesService.getAll() // ใช้ EmployeesService
       .then((res) => {
         console.log(res.data.data);
         setEmployees(res.data.data);
@@ -150,7 +150,6 @@ const StaffUser = () => {
 
   const handleClose = () => setShowModal(false);
 
-  
   return (
     <StaffLayout>
       <Container>
@@ -282,7 +281,7 @@ const StaffUser = () => {
                     <tr key={emp.id}>
                       <td className="text-center">
                         <img
-                          src={emp.image || "./images/admin.png"} // หากมีรูปภาพจะแสดงรูปที่อัพโหลด
+                          src={emp.image || `./images/${emp.image_employee}`}
                           alt="พนักงาน"
                           style={{
                             width: "80px",
@@ -303,9 +302,7 @@ const StaffUser = () => {
                       </td>
                       <td className="text-center">{emp.username}</td>
                       <td className="text-center">
-                        <span>
-                          {emp.type}
-                        </span>
+                        <span>{emp.type}</span>
                       </td>
                       <td className="text-center">
                         <span
@@ -439,8 +436,12 @@ const StaffUser = () => {
                       onChange={handleChangeCreate}
                     >
                       <option>--เลือกประเภท--</option>
-                      <option value="1">เจ้าหน้าที่ประสานงานขนส่ง</option>
-                      <option value="2">พนักงานขับรถส่งสินค้า</option>
+                      <option value="เจ้าหน้าที่ประสานงานขนส่ง">
+                        เจ้าหน้าที่ประสานงานขนส่ง
+                      </option>
+                      <option value="พนักงานขับรถส่งสินค้า">
+                        พนักงานขับรถส่งสินค้า
+                      </option>
                     </Form.Control>
                   </Form.Group>
                 </Col>
@@ -595,8 +596,12 @@ const StaffUser = () => {
                       value={editFormData.type || ""}
                       onChange={handleChangeEdit}
                     >
-                      <option value="1">เจ้าหน้าที่ประสานงานขนส่ง</option>
-                      <option value="2">พนักงานขับรถส่งสินค้า</option>
+                      <option value="เจ้าหน้าที่ประสานงานขนส่ง">
+                        เจ้าหน้าที่ประสานงานขนส่ง
+                      </option>
+                      <option value="พนักงานขับรถส่งสินค้า">
+                        พนักงานขับรถส่งสินค้า
+                      </option>
                     </Form.Control>
                   </Form.Group>
                 </Col>

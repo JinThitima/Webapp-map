@@ -1,17 +1,101 @@
-import React from "react";
-import { Container, Row, Col, Form, Button,} from "react-bootstrap";
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Login.css"; // สไตล์เพิ่มเติม
-import { Link } from "react-router-dom";
-import EmployeesService from "../server/Employee"; // เพิ่มการใช้งาน EmployeesService
-
+import { useNavigate } from "react-router-dom"; // สำหรับการเปลี่ยนเส้นทาง
+import EmployeesService from "../server/Employee";
+import Swal from "sweetalert2";
 
 const Login = () => {
-    const handleForgotPassword = () => {
-      alert(
-        "หากท่านต้องการความช่วยเหลือในการเข้าระบบ กรุณาติดต่อเจ้าหน้าที่ฝ่ายสนับสนุนที่หมายเลข 02-123-4567"
-      );
-    };
+  const [loginData, setLoginData] = useState({ username: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // ใช้สำหรับเปลี่ยนเส้นทาง
+
+     const handleChange = (e) => {
+       const { name, value } = e.target;
+       setLoginData({ ...loginData, [name]: value });
+     }; 
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await EmployeesService.login(loginData);
+
+      // ตรวจสอบว่ามี data และ employee อยู่ใน response
+      if (res.data && res.data.data && res.data.data.employee) {
+        const employee = res.data.data.employee;
+        const token = res.data.data.token;
+
+        // เก็บ token ลง localStorage
+        localStorage.setItem("token", token);
+
+        // ตรวจสอบ type ของพนักงาน
+        const userRole = employee.type;
+        console.log("Employee data:", employee);
+
+        // แจ้งเตือน และเปลี่ยนเส้นทางตาม userRole
+        switch (userRole) {
+          case "เจ้าหน้าที่ประสานงานขนส่ง":
+            Swal.fire({
+              icon: "success",
+              title: "เข้าสู่ระบบ",
+              text: "ยินดีต้อนรับเข้าสู่ระบบ",
+              timer: 1000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+            navigate("/StaffHome");
+            break;
+
+          case "พนักงานขับรถส่งสินค้า":
+            Swal.fire({
+              icon: "success",
+              title: "เข้าสู่ระบบ",
+              text: "ยินดีต้อนรับเข้าสู่ระบบ",
+              timer: 1000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+            navigate("/DriverHome");
+            break;
+
+          default:
+            Swal.fire({
+              icon: "warning",
+              title: "เกิดข้อผิดพลาด",
+              text: "ไม่มีสิทธิ์ในการเข้าถึง",
+              showConfirmButton: true,
+            });
+            break;
+        }
+      } else {
+        throw new Error("รูปแบบข้อมูลที่ได้รับไม่ถูกต้อง");
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "เกิดข้อผิดพลาด!",
+        text: "โปรดใส่ username และ password ให้ถูกต้อง",
+        showConfirmButton: false,
+        timer: 1000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleForgotPassword = () => {
+    alert(
+      "หากท่านต้องการความช่วยเหลือในการเข้าระบบ กรุณาติดต่อเจ้าหน้าที่ฝ่ายสนับสนุนที่หมายเลข 02-123-4567"
+    );
+  };
+
   return (
     <div className="login-background">
       <Container className="login-container">
@@ -27,15 +111,16 @@ const Login = () => {
                   className="login-image"
                   style={{ display: "block", margin: "0 auto" }}
                 />
-                {/* <h2 className="text-center ">Login</h2>{" "} */}
               </div>
-              {/* เปลี่ยนจาก "Login" เป็น "Staff Login" */}
-              <Form>
+              <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formBasicEmail">
-                  <Form.Label>Email address</Form.Label>
+                  <Form.Label>username</Form.Label>
                   <Form.Control
-                    type="email"
-                    placeholder="Enter email"
+                    type="username"
+                    placeholder="Username"
+                    name="username"
+                    value={loginData.username}
+                    onChange={handleChange}
                     required
                   />
                 </Form.Group>
@@ -45,36 +130,32 @@ const Login = () => {
                   <Form.Control
                     type="password"
                     placeholder="Password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleChange}
                     required
                   />
                 </Form.Group>
                 <br />
-                {/* <Link to="/DriverHome" className="w-100 text-center"> */}
-                <Link to="/StaffHome" className="w-100 text-center">
-                  <Button
-                    variant="outline-primary"
-                    type="button"
-                    className="w-100"
-                  >
-                    {" "}
-                    {/* เปลี่ยน type เป็น "button" */}
-                    Login
-                  </Button>
-                </Link>
-              </Form>
-              <div style={{ textAlign: "end", marginTop: "20px" }}>
-                <Button
-                  variant="link"
-                  onClick={handleForgotPassword}
-                  style={{
-                    color: "grey",
-                    textDecoration: "none",
-                    border: "none",
-                  }}
+                {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
+                {/* <Button
+                  variant="outline-primary"
+                  type="button"
+                  className="w-100"
+                
                 >
-                  แจ้งปัญหาการเข้าสู่ระบบ
-                </Button>
-              </div>
+                  Login
+                </Button> */}
+                <center>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-block"
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "LOG IN"}
+                </button>
+                </center>
+              </Form>
             </div>
           </Col>
         </Row>

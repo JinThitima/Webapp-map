@@ -123,7 +123,7 @@ const DetailUser = () => {
                   }}
                 >
                   <img
-                    src="../images/admin.png"
+                    src={`../images/${employee.image_employee}`}
                     alt="admin"
                     style={{
                       width: "100%",
@@ -179,11 +179,11 @@ const DetailUser = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <strong>สถานะผู้ใช้งาน : </strong>
-                {employee.status === "active"
-                  ? "พร้อมใช้งาน"
-                  : employee.status === "inactive"
-                  ? "ไม่พร้อมใช้งาน"
-                  : "ไม่ระบุสถานะ"}
+              {employee.status === "active"
+                ? "พร้อมใช้งาน"
+                : employee.status === "inactive"
+                ? "ไม่พร้อมใช้งาน"
+                : "ไม่ระบุสถานะ"}
             </ListGroup.Item>
             <ListGroup.Item>
               <div className="d-flex justify-content-between align-items-center">

@@ -1,0 +1,170 @@
+.main-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #4A90E2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.locations-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.locations-header {
+  background-color: #f8f9fa;
+  padding: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.header-details {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.location-index {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4A90E2;
+}
+
+.location-details {
+  flex-grow: 1;
+  margin-left: 15px;
+}
+
+.location-name {
+  font-size: 1rem;
+  color: #333;
+}
+
+.location-address,
+.location-time {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.id-button {
+  background-color: #e9ecef;
+  color: #333;
+  border: none;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-top: 10px;
+}
+
+.id-button:hover {
+  background-color: #d6d8db;
+}
+
+.modern-button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modern-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.location-address {
+  display: flex;
+  align-items: center; /* จัดให้อิโมจิและข้อความอยู่ในแนวเดียวกัน */
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.location-icon {
+  margin-right: 8px; /* เพิ่มระยะห่างระหว่างไอคอนและข้อความ */
+  color: #4A90E2; /* สีของไอคอน */
+}
+
+.location-tel {
+  display: flex;
+  align-items: center; /* จัดให้อิโมจิและข้อความอยู่ในแนวเดียวกัน */
+  font-size: 0.85rem;
+  color: #555;
+}
+.modern-button {
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.modern-button:hover {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
+
+.id-button {
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 5px 15px;
+}
+
+  .upload-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .upload-container:hover {
+    border-color: #007bff;
+  }
+
+  .image-upload-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #007bff;
+    font-size: 2rem;
+    opacity: 0.8;
+  }
+
+  .img-preview {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .img-preview[src] {
+    display: block;
+  }

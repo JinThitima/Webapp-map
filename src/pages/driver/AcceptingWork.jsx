@@ -1,179 +1,273 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
   Col,
   Card,
-  Button,
-  Badge,
-  Form,
+  ListGroup,
   Modal,
+  Form,Button
 } from "react-bootstrap";
+import { FaStore, } from "react-icons/fa";
 import DriverLayout from "../../layouts/DriverLayout";
-import { Link } from "react-router-dom";
-import { FaCar } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
+import ShipworksService from "../../server/Ship_work";
+import "./AcceptingWork.css";
+import ShippingStopCard from "./ShippingStopCard";
 
 const AcceptingWork = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [employees, setEmployees] = useState({});
+  const [selectedShip_work, setSelectedShip_work] = useState(null);
+  const [modalType, setModalType] = useState("");
+  const [editFormData, setEditFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
+
+  const fetchData = async () => {
+     try {
+       const res = await ShipworksService.getShipWorkById(id);
+       console.log(res.data.data);
+       setSelectedShip_work(res.data.data);
+     } catch (e) {
+       console.log(e);
+     }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleChangeEdit = (event) => {
+    const { name, value } = event.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("th-TH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("th-TH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZone: "Asia/Bangkok", // Ensures the time is in Thai timezone
+    });
+  };
+
+    const handleEditSubmit = (event) => {
+      event.preventDefault();
+
+      if (!selectedShip_work || !selectedShip_work._id) {
+        alert("ไม่พบข้อมูลรถจัดส่งสินค้าที่ต้องการแก้ไข");
+        return;
+      }
+
+      ShipworksService.updateFinishMileage(selectedShip_work._id, editFormData)
+        .then(() => {
+          alert("เพิ่มเลขไมล์รถจัดส่งสินค้าสำเร็จ");
+          setShowModal(false);
+          fetchData();
+
+          setTimeout(() => {
+            const id = selectedShip_work._id;
+            navigate(`/AcceptingWork/${id}`);
+          }, 300);
+        })
+        .catch((e) => {
+          console.error("เกิดข้อผิดพลาดในการแก้ไขข้อมูล", e);
+          alert(
+            "ไม่สามารถแก้ไขข้อมูลได้: " +
+              (e.response?.data?.message || "ข้อผิดพลาดจากเซิร์ฟเวอร์")
+          );
+        });
+    };
+
+    const handleShowEdit = (selectedShip_work) => {
+      setSelectedShip_work(selectedShip_work);
+      setModalType("edit");
+      setShowModal(true);
+      setEditFormData({
+        finish_mileage: selectedShip_work.finish_mileage || "",
+      });
+    };
   const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
 
   return (
     <DriverLayout>
       <Container className="mt-4">
-        {/* หัวข้อ */}
-        <h3 className="text-center mb-3">รายละเอียดการวิ่งงาน</h3>
+        <div>
+          {selectedShip_work ? (
+            <div key={selectedShip_work._id}>
+              <Row className="my-4 d-flex justify-content-center">
+                <Col md={12} className="text-center">
+                  <h2
+                    className="main-title"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <FaStore style={{ marginRight: "10px" }} />
+                    รายละเอียดใบงานการวิ่งงาน
+                  </h2>
+                </Col>
+              </Row>
+              <Row>
+                <Card className="locations-card">
+                  <Card.Header className="locations-header">
+                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start">
+                      <strong>ชื่อเส้นทาง: {selectedShip_work.spots}</strong>
+                      <strong className="mt-2 mt-sm-0">
+                        เลขที่ใบงาน: {selectedShip_work.workID}
+                      </strong>
+                    </div>
 
-        {/* วันที่ */}
-        <Row className="mb-4">
-          <Col xs={12} className="text-center">
-            <span>
-              <strong>วันที่:</strong> 12 พฤศจิกายน 2024
-            </span>
-          </Col>
-        </Row>
+                    <div className="header-details mt-3">
+                      <Row>
+                        <Col className="text-md-start mb-2">
+                          <div>
+                            <strong>วันที่สร้างใบงาน:</strong>{" "}
+                            {formatDate(selectedShip_work.date_worksheet)}
+                          </div>
+                        </Col>
+                        <Col className="text-md-end mb-2">
+                          <div>
+                            <strong>วันที่จัดส่ง:</strong>{" "}
+                            {formatDate(selectedShip_work.delivery_date)}
+                          </div>
+                        </Col>
+                      </Row>
 
-        {/* กรอบแสดงข้อมูล */}
-        <Card className="shadow-sm border-0 mb-4">
-          <Card.Body>
-            <Row className="mb-3">
-              <Col xs={12} className="text-center">
-                <h5 className="fw-bold">
-                  <strong>เลขที่ใบงาน:</strong> 123456
-                </h5>
+                      <Row className="text-md-start mb-2">
+                        <Col>
+                          <div>
+                            <strong>เวลาเริ่มจัดส่ง:</strong>{" "}
+                            {formatTime(selectedShip_work.actual_start_time)} น.
+                          </div>
+                        </Col>
+                        <Col className="text-md-end">
+                          <div>
+                            <strong>จำนวนร้าน: 1 ร้าน</strong>{" "}
+                            {employees[selectedShip_work.driver_id]}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  </Card.Header>
+
+                  <ListGroup variant="flush">
+                    {selectedShip_work.shipping_stops.length > 0 ? (
+                      selectedShip_work.shipping_stops.map(
+                        (shippingStop, index) => (
+                          <ShippingStopCard
+                            key={index}
+                            data={shippingStop}
+                            shipWorkId={selectedShip_work._id}
+                          />
+                        )
+                      )
+                    ) : (
+                      <ListGroup.Item>ไม่พบข้อมูลใบงานที่ตรงกัน</ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Card>
+              </Row>
+            </div>
+          ) : (
+            <Row className="my-4 d-flex justify-content-center">
+              <Col md={12} className="text-center">
+                <h4>ไม่มีข้อมูลใบงานการวิ่งงาน</h4>
               </Col>
             </Row>
-
-            <Row className="mb-3">
-              <Col xs={6} className="text-center">
-                <span>
-                  <strong>เวลาคาดว่าจะเริ่มงาน:</strong> 08:00 น.
-                </span>
-              </Col>
-              <Col xs={6} className="text-center">
-                <span>
-                  <strong>เวลาคาดว่าจะเสร็จงาน:</strong> 12:00 น.
-                </span>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col xs={6} className="text-center">
-                <span>
-                  <strong>สายวิ่งงาน:</strong> ลาดกระบัง
-                </span>
-              </Col>
-              <Col xs={6} className="text-center">
-                <span>
-                  <strong>จำนวนร้านค้า:</strong> 14 ร้าน
-                </span>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-
-        {/* รายละเอียดร้าน */}
-        <Card className="shadow-sm border-0 mb-4">
-          <Card.Body>
-            <Row className="mb-3">
-              <Col xs={8}>
-                <h6 className="fw-bold">
-                  ลำดับที่: <span style={{ color: "#ff6f61" }}>1</span>
-                </h6>
-              </Col>
-              <Col xs={4} className="text-end">
-                <Link to="/Detail_Work">
-                  <Button variant="info" className="rounded-pill px-4 py-2">
-                    จัดส่ง
-                  </Button>
-                </Link>
-              </Col>
-            </Row>
-
-            {/* รูปภาพและข้อมูลร้าน */}
-            <Row className="mb-3">
-              <Col xs={4} className="text-center">
-                <img
-                  src="/images/Store.png"
-                  alt="Store"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    border: "2px solid #f1f1f1",
-                  }}
-                />
-              </Col>
-              <Col xs={8}>
-                <h6 className="fw-bold mb-1" style={{ fontSize: "1rem" }}>
-                  ชื่อร้าน: <span className="text-primary">ร้าน XYZ</span>
-                  <Badge bg="info" className="ms-2">
-                    ใหม่
-                  </Badge>
-                </h6>
-                <p style={{ fontSize: "0.9rem", color: "#555" }}>
-                  <strong>ที่อยู่:</strong> 123 ถนน ABC, กรุงเทพฯ
-                  <br />
-                  <strong>เบอร์โทร:</strong> 081-234-5678
-                </p>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-
-        {/* ปุ่ม "จบงาน" */}
-        <center>
+          )}
+        </div>
+        <br />
+        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-end">
           <Button
             variant="success"
-            className="px-4 py-2 rounded-pill"
+            className="start-button w-40 ms-auto"
+            onClick={() => handleShowEdit(selectedShip_work)}
             style={{
-              backgroundColor: "#28a745",
-              borderColor: "#28a745",
+              borderColor: "#ffc107",
+              padding: "8px 16px",
+              fontSize: "14px",
             }}
-            onClick={handleShow}
           >
-            จัดส่งสำเร็จ
+            จัดส่งสินค้าสำเร็จ
           </Button>
-        </center>
+        </div>
 
-        {/* Modal */}
-        <Modal show={showModal} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>กรอกข้อมูลเพื่อเสร็จสิ้นใบงาน</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              {/* License Plate Input */}
-              <Form.Group controlId="formLicensePlate" className="mb-3">
-                <Form.Label className="text-muted">
-                  กรุณากรอกเลขไมล์รถยนต์
-                </Form.Label>
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text bg-white">
-                      <FaCar />
-                    </span>
+        <div>
+          <Modal show={modalType === "edit" && showModal} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>กรุณากรอกเลขไมล์รถยนต์</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form onSubmit={handleEditSubmit}>
+                <Form.Group controlId="formStartMileage">
+                  <Form.Label>เลขไมล์รถยนต์</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="finish_mileage"
+                    value={editFormData.finish_mileage || ""}
+                    onChange={handleChangeEdit}
+                    placeholder="กรุณากรอกเลขไมล์"
+                  />
+                </Form.Group>
+                <br />
+                <Row className="d-flex justify-content-center align-items-center mt-3">
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      width: "100%",
+                      maxWidth: "400px",
+                    }}
+                  >
+                    <Button
+                      variant="secondary"
+                      onClick={handleClose}
+                      style={{
+                        flex: "1",
+                        borderRadius: "10px",
+                        fontWeight: "bold",
+                        padding: "10px",
+                      }}
+                    >
+                      ยกเลิก
+                    </Button>
+                    <Button
+                      variant="success"
+                      type="submit"
+                      style={{
+                        flex: "1",
+                        borderRadius: "10px",
+                        fontWeight: "bold",
+                        padding: "10px",
+                      }}
+                    >
+                      บันทึกข้อมูล
+                    </Button>
                   </div>
-                  <Form.Control type="text" placeholder="เลขไมล์รถยนต์" />
-                </div>
-              </Form.Group>
-
-              {/* Image Upload */}
-              <Form.Group controlId="formFileUpload" className="mb-3">
-                <Form.Label className="text-muted">
-                  รูปภาพหน้าจอรถยนต์
-                </Form.Label>
-                <Form.Control type="file" />
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="success" onClick={handleClose} className="w-100">
-              จัดส่งสำเร็จ
-            </Button>
-          </Modal.Footer>
-        </Modal>
+                </Row>
+              </Form>
+            </Modal.Body>
+          </Modal>
+        </div>
       </Container>
     </DriverLayout>
   );

@@ -10,8 +10,8 @@ import {
   Modal,
 } from "react-bootstrap";
 import StaffLayout from "../../layouts/StaffLayout";
-import { BsShop, BsFillPersonPlusFill } from "react-icons/bs";
-import { useParams, NavLink } from "react-router-dom";
+import { BsShop } from "react-icons/bs";
+import { useParams } from "react-router-dom";
 import CustomersService from "../../server/Customer";
 
 const DetailCustomer = () => {
@@ -106,7 +106,7 @@ const DetailCustomer = () => {
                   }}
                 >
                   <img
-                    src="../images/Store.png"
+                    src={`../images/${customer.image_customer}`}
                     alt="customer"
                     style={{
                       width: "90%",
@@ -159,7 +159,8 @@ const DetailCustomer = () => {
               <strong>เบอร์ติดต่อ : </strong> {customer.tel}
             </ListGroup.Item>
             <ListGroup.Item>
-              <strong>ละติจูด , ลองติจูด : </strong> {customer.lat} , {customer.long}
+              <strong>ละติจูด , ลองติจูด : </strong> {customer.lat} ,{" "}
+              {customer.long}
             </ListGroup.Item>
             <ListGroup.Item>
               <strong>แผนที่ : </strong>

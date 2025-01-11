@@ -106,10 +106,10 @@ const DetailPrivateTransport = () => {
               <strong>ลองติจูด :</strong> {shipping_companies.long}
               {/* เปลี่ยนเป็นลองติจูดที่ต้องการ */}
             </ListGroup.Item>
-            <ListGroup.Item>
-              <strong>กลุ่มเส้นทางการวิ่งงาน :</strong> เส้นทางที่ 1{" "}
+            {/* <ListGroup.Item>
+              <strong>กลุ่มเส้นทางการวิ่งงาน :</strong> เส้นทางที่ 1{" "} */}
               {/* รายการเส้นทางที่ต้องการแสดง */}
-            </ListGroup.Item>
+            {/* </ListGroup.Item> */}
           </ListGroup>
         </Card>
       </Container>

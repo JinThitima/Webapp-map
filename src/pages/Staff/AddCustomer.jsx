@@ -1,142 +1,120 @@
-import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Form,
-  Modal,
-} from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Container, Row, Col, Table } from "react-bootstrap";
 import StaffLayout from "../../layouts/StaffLayout";
+import RoutetemplatesService from "../../server/Route_template";
+import { useNavigate, useParams } from "react-router-dom";
+import Ship_worksService from "../../server/Ship_work";
 
-const AddCustomer = () => {
+function AddCustomer() {
+  const params = useParams();
+  const { id } = params; // ใช้ id ของ Shipwork
+  const navigate = useNavigate();
+
+  const [routetemplate, setRoutetemplates] = useState([]);
+  const [selectedCustomers, setSelectedCustomers] = useState([]); // เก็บ customer_id ที่เลือก
+  const [shipwork, setShipworks] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("");
+
+  const fetchShipwork = async () => {
+    try {
+      const res = await Ship_worksService.get(id);
+      console.log(res.data.data);
+      setShipworks(res.data.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const fetchRouteTemplate = async () => {
+    try {
+      const res = await RoutetemplatesService.getAll();
+      setRoutetemplates(res.data.data || []);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // ใช้ useEffect เพื่อดึงข้อมูลเส้นทางและ shipwork เมื่อคอมโพเนนต์โหลด
+  useEffect(() => {
+    fetchRouteTemplate();
+    fetchShipwork();
+  }, []);
+
+  // ฟังก์ชันในการจัดการเมื่อเลือก checkbox
+  const handleCheckboxChange = (customerId) => {
+    setSelectedCustomers((prevSelected) => {
+      // ถ้าลูกค้าได้รับการเลือกแล้ว เราจะลบออกจากอาเรย์
+      if (prevSelected.includes(customerId)) {
+        return prevSelected.filter((id) => id !== customerId);
+      }
+      // ถ้ายังไม่ได้เลือกเพิ่ม customerId ลงในอาเรย์
+      return [...prevSelected, customerId];
+    });
+  };
+
+  // ฟังก์ชันในการจัดการเมื่อส่งฟอร์ม
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      // ส่ง customer_id ที่เลือกไปยัง Ship_worksService
+      for (const customerId of selectedCustomers) {
+        await Ship_worksService.addCustomer(id, { customer_id: customerId });
+      }
+      // แสดงข้อความหรือเปลี่ยนเส้นทางหลังจากเพิ่มสำเร็จ
+      alert("Added selected customers to the shipwork successfully!");
+      navigate(`/DetailJobOrder/${id}`); // เปลี่ยนเส้นทางไปยังหน้าที่ต้องการ
+    } catch (e) {
+      console.log(e);
+      alert("An error occurred while adding customers");
+    }
+  };
+
   return (
     <StaffLayout>
-      <Container>
-        {/* Modal สำหรับเพิ่มข้อมูลลูกค้า */}
-        <Modal size="lg">
-          <Modal.Header closeButton className="modal-header-add">
-            <Modal.Title>เพิ่มข้อมูลลูกค้า</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerShopName">
-                    <Form.Label>ชื่อร้านค้า</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerOwnerFirstName">
-                    <Form.Label>ชื่อเจ้าของร้าน</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerOwnerLastName">
-                    <Form.Label>นามสกุลเจ้าของร้าน</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerPhone">
-                    <Form.Label>เบอร์ติดต่อ</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerLatitude">
-                    <Form.Label>ละติจูด</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="formCustomerLongitude">
-                    <Form.Label>ลองติจูด</Form.Label>
-                    <Form.Control type="text" />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Form.Group controlId="formCustomerAddress">
-                <Form.Label>ที่อยู่</Form.Label>
-                <Form.Control as="textarea" rows={2} />
-              </Form.Group>
-
-              <Form.Group controlId="formCustomerMapUrl">
-                <Form.Label>แผนที่ URL</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-
-              <Form.Group controlId="formCustomerImage">
-                <Form.Label>ภาพร้านค้า</Form.Label>
-                <Form.Control type="file" />
-              </Form.Group>
-
-              <Row className="mb-3">
-                {/* ประเภทขนส่ง */}
-                <Form.Group as={Col} controlId="transportType">
-                  <Form.Label>ประเภทขนส่ง</Form.Label>
-                  <Form.Select
-                  // value={transportType}
-                  // onChange={handleTransportTypeChange}
-                  >
-                    <option value="">-- กรุณาเลือกประเภทขนส่ง --</option>
-                    <option value="company">รถบริษัท</option>
-                    <option value="private">ขนส่งเอกชน</option>
-                  </Form.Select>
-                </Form.Group>
-              </Row>
-                          <br />
-              <Row className="d-flex justify-content-center align-items-center mt-3">
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    width: "100%",
-                    maxWidth: "400px",
-                  }}
-                >
-                  <Button
-                    variant="outline-secondary"
-
-                    style={{
-                      flex: "1",
-                      borderRadius: "10px",
-                      fontWeight: "bold",
-                      padding: "10px",
-                    }}
-                  >
-                    ยกเลิก
-                  </Button>
-                  <Button
-                    variant="success"
-                    type="submit"
-                    style={{
-                      flex: "1",
-                      borderRadius: "10px",
-                      fontWeight: "bold",
-                      padding: "10px",
-                    }}
-                  >
-                    บันทึกข้อมูล
-                  </Button>
-                </div>
-              </Row>                          
-            </Form>
-          </Modal.Body>
-        </Modal>
-        <br />
+      <Container className="my-4">
+        <div>
+          <h2>เพิ่มร้านค้าที่ต้องการจัดส่ง</h2>
+          <Form onSubmit={handleSubmit}>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ชื่อเส้นทาง</th>
+                  <th>ชื่อร้านค้า</th>
+                  <th>ที่อยู่</th>
+                </tr>
+              </thead>
+              <tbody>
+                {routetemplate.map((route, index) =>
+                  route.customers.map((customer, customerIndex) => (
+                    <tr key={`${route.id}-${customerIndex}`}>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          name="customer_id"
+                          value={customer.customer_id}
+                          onChange={() =>
+                            handleCheckboxChange(customer.customer_id)
+                          } // เมื่อเลือก checkbox
+                        />
+                      </td>
+                      <td>{route.name}</td> {/* ชื่อเส้นทาง */}
+                      <td>{customer.name}</td> {/* ชื่อร้านค้า */}
+                      <td>{customer.address}</td> {/* ที่อยู่ของร้านค้า */}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+        </div>
       </Container>
     </StaffLayout>
   );
-};
+}
 
 export default AddCustomer;

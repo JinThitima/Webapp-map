@@ -33,6 +33,7 @@ const Car = () => {
       [event.target.name]: event.target.value,
     });
   };
+  
   const handleCreateSubmit = (event) => {
     event.preventDefault();
     console.log(createFormData);
@@ -92,7 +93,7 @@ const Car = () => {
 
   VehiclesService.deleteVehicles(selectedVehicles._id) // ลบข้อมูลพนักงาน
     .then((res) => {
-      alert("ข้อมูลรถบริษัทถูกลบเรียบร้อยแล้ว");
+      alert("ข้อมูลรถบริษัทถูกลบรียบร้อยแล้ว");
       setShowModal(false); // ปิด Modal หลังจากลบเสร็จ
       fetchVehicles(); // รีเฟรชข้อมูลพนักงาน
     })
@@ -158,6 +159,15 @@ const Car = () => {
 
   const handleClose = () => setShowModal(false);
 
+   const formatDate = (dateString) => {
+     if (!dateString) return "-";
+     const date = new Date(dateString);
+     return date.toLocaleDateString("th-TH", {
+       year: "numeric",
+       month: "long",
+       day: "numeric",
+     });
+   };
   return (
     <StaffLayout>
       <Container>
@@ -281,7 +291,7 @@ const Car = () => {
                     <tr key={vehicle.id}>
                       <td>
                         <img
-                          src={vehicle.image || "./images/car.png"}
+                          src={vehicle.image || `./images/${vehicle.image_car}`}
                           alt="รถขนส่ง"
                           style={{
                             width: "80px",
@@ -305,7 +315,9 @@ const Car = () => {
                         <p>ประเภทรถ : {vehicle.vehicle_type}</p>
                         <p>สีรถ : {vehicle.vehicle_color}</p>
                       </td>
-                      <td className="text-center">{vehicle.register_date}</td>
+                      <td className="text-center">
+                        {formatDate(vehicle.register_date)}
+                      </td>
                       <td>
                         <div className="d-flex justify-content-between">
                           <Button
@@ -343,6 +355,7 @@ const Car = () => {
             </Table>
           </Card.Body>
         </Card>
+
         {/* Add Modal */}
         <Modal
           show={modalType === "add" && showModal}
@@ -358,73 +371,86 @@ const Car = () => {
           <Modal.Body>
             <Form onSubmit={handleCreateSubmit}>
               {/* ป้ายทะเบียน */}
-              <Form.Group>
-                <Form.Label>ป้ายทะเบียน</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="register_number"
-                  placeholder="กรุณากรอกป้ายทะเบียน"
-                  onChange={handleChangeCreate}
-                />
-              </Form.Group>
-
-              {/* ยี่ห้อหรือรุ่นรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>ยี่ห้อ/รุ่นรถ</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="brand_modal"
-                  placeholder="กรุณากรอกยี่ห้อหรือรุ่นรถ"
-                  onChange={handleChangeCreate}
-                />
-              </Form.Group>
-
-              {/* ประเภทรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>ประเภทรถ</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="vehicle_type"
-                  onChange={handleChangeCreate}
-                >
-                  <option value="">เลือกประเภท</option>
-                  <option value="1">รถเก๋ง</option>
-                  <option value="2">รถกระบะคอก</option>
-                  <option value="3">รถกระบะตู้ทึบ</option>
-                  {/* เพิ่มประเภทอื่น ๆ ที่ต้องการ */}
-                </Form.Control>
-              </Form.Group>
-
-              {/* สีรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>สีรถ</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="vehicle_color"
-                  placeholder="กรุณากรอกสีรถ"
-                  onChange={handleChangeCreate}
-                />
-              </Form.Group>
-
-              {/* วันที่ทะเบียน */}
-              <Form.Group className="mt-3">
-                <Form.Label>วันที่จดทะเบียน</Form.Label>
-                <Form.Control
-                  type="date"
-                  name="register_date"
-                  onChange={handleChangeCreate}
-                />
-              </Form.Group>
-
-              {/* รูปภาพรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>รูปภาพรถ</Form.Label>
-                <Form.Control
-                  type="file"
-                  name="image_car"
-                  onChange={handleChangeCreate}
-                />
-              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>ป้ายทะเบียน</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="register_number"
+                      placeholder="กรุณากรอกป้ายทะเบียน"
+                      onChange={handleChangeCreate}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* ยี่ห้อหรือรุ่นรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>ยี่ห้อ/รุ่นรถ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="brand_modal"
+                      placeholder="กรุณากรอกยี่ห้อหรือรุ่นรถ"
+                      onChange={handleChangeCreate}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  {/* ประเภทรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>ประเภทรถ</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="vehicle_type"
+                      onChange={handleChangeCreate}
+                    >
+                      <option value="">เลือกประเภท</option>
+                      <option value="รถเก๋ง">รถเก๋ง</option>
+                      <option value="รถกระบะคอก">รถกระบะคอก</option>
+                      <option value="รถกระบะตู้ทึบ">รถกระบะตู้ทึบ</option>
+                      {/* เพิ่มประเภทอื่น ๆ ที่ต้องการ */}
+                    </Form.Control>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* สีรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>สีรถ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="vehicle_color"
+                      placeholder="กรุณากรอกสีรถ"
+                      onChange={handleChangeCreate}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  {/* วันที่ทะเบียน */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>วันที่จดทะเบียน</Form.Label>
+                    <Form.Control
+                      type="date"
+                      name="register_date"
+                      onChange={handleChangeCreate}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* รูปภาพรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>รูปภาพรถ</Form.Label>
+                    <Form.Control
+                      type="file"
+                      name="image_car"
+                      onChange={handleChangeCreate}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
               <Row className="d-flex justify-content-center align-items-center mt-3">
                 <div
                   style={{
@@ -478,75 +504,88 @@ const Car = () => {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={handleEditSubmit}>
-              {/* ป้ายทะเบียน */}
-              <Form.Group>
-                <Form.Label>ป้ายทะเบียน</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="register_number"
-                  value={editFormData.register_number || ""}
-                  onChange={handleEditSubmit}
-                  placeholder="กรุณากรอกป้ายทะเบียน"
-                />
-              </Form.Group>
-
-              {/* ยี่ห้อหรือรุ่นรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>ยี่ห้อ/รุ่นรถ</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="brand_modal"
-                  value={editFormData.brand_modal || ""}
-                  onChange={handleEditSubmit}
-                  placeholder="กรุณากรอกยี่ห้อหรือรุ่นรถ"
-                />
-              </Form.Group>
-
-              {/* ประเภทรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>ประเภทรถ</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="vehicle_type"
-                  value={editFormData.vehicle_type || ""}
-                  onChange={handleEditSubmit}
-                >
-                  <option value="">เลือกประเภท</option>
-                  <option value="รถบรรทุก">รถบรรทุก</option>
-                  <option value="จักรยานยนต์">จักรยานยนต์</option>
-                  <option value="รถเก๋ง">รถเก๋ง</option>
-                  {/* เพิ่มประเภทอื่น ๆ ที่ต้องการ */}
-                </Form.Control>
-              </Form.Group>
-
-              {/* สีรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>สีรถ</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="vehicle_color"
-                  value={editFormData.vehicle_color || ""}
-                  onChange={handleChangeEdit}
-                  placeholder="กรุณากรอกสีรถ"
-                />
-              </Form.Group>
-
-              {/* วันที่ทะเบียน */}
-              <Form.Group className="mt-3">
-                <Form.Label>วันที่จดทะเบียน</Form.Label>
-                <Form.Control
-                  type="date"
-                  name="register_date"
-                  value={editFormData.register_date || ""}
-                  onChange={handleChangeEdit}
-                />
-              </Form.Group>
-
-              {/* รูปภาพรถ */}
-              <Form.Group className="mt-3">
-                <Form.Label>รูปภาพรถ</Form.Label>
-                <Form.Control type="file" name="image_car" />
-              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  {/* ป้ายทะเบียน */}
+                  <Form.Group>
+                    <Form.Label>ป้ายทะเบียน</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="register_number"
+                      value={editFormData.register_number || ""}
+                      onChange={handleEditSubmit}
+                      placeholder="กรุณากรอกป้ายทะเบียน"
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* ยี่ห้อหรือรุ่นรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>ยี่ห้อ/รุ่นรถ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="brand_modal"
+                      value={editFormData.brand_modal || ""}
+                      onChange={handleEditSubmit}
+                      placeholder="กรุณากรอกยี่ห้อหรือรุ่นรถ"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  {/* ประเภทรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>ประเภทรถ</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="vehicle_type"
+                      value={editFormData.vehicle_type || ""}
+                      onChange={handleEditSubmit}
+                    >
+                      <option value="">เลือกประเภท</option>
+                      <option value="รถบรรทุก">รถบรรทุก</option>
+                      <option value="จักรยานยนต์">จักรยานยนต์</option>
+                      <option value="รถเก๋ง">รถเก๋ง</option>
+                      {/* เพิ่มประเภทอื่น ๆ ที่ต้องการ */}
+                    </Form.Control>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* สีรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>สีรถ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="vehicle_color"
+                      value={editFormData.vehicle_color || ""}
+                      onChange={handleChangeEdit}
+                      placeholder="กรุณากรอกสีรถ"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  {/* วันที่ทะเบียน */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>วันที่จดทะเบียน</Form.Label>
+                    <Form.Control
+                      type="date"
+                      name="register_date"
+                      value={editFormData.register_date || ""}
+                      onChange={handleChangeEdit}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  {/* รูปภาพรถ */}
+                  <Form.Group className="mt-3">
+                    <Form.Label>รูปภาพรถ</Form.Label>
+                    <Form.Control type="file" name="image_car" />
+                  </Form.Group>
+                </Col>
+              </Row>
               <Row className="d-flex justify-content-center align-items-center mt-3">
                 <div
                   style={{

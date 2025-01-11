@@ -1,0 +1,22 @@
+.table-header {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.divider {
+  margin: 0;
+  border: 0.5px solid #ddd;
+}
+
+.action-buttons .btn-sm {
+  margin: 2px;
+  font-size: 14px;
+  padding: 8px 10px;
+}
+
+.text-muted {
+  font-style: italic;
+  color: #6c757d;
+}

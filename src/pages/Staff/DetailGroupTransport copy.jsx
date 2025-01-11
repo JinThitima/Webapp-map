@@ -36,7 +36,7 @@ function DetailGroupTransport() {
   const fetchRouteTemplate = async () => {
     try {
       const res = await Route_templatesService.get(id);
-      console.log(res.data.data);
+     
       setRouteTemplate(res.data.data);
       setShops(res.data.data.customers);
     } catch (e) {
@@ -70,6 +70,7 @@ function DetailGroupTransport() {
   const fetchCustomer = async () => {
     try {
       const res = await CustomersService.getAll();
+      console.log('customer',res.data.data)
       setCustomers(res.data.data || []);
     } catch (e) {
       console.log(e);
@@ -87,7 +88,6 @@ function DetailGroupTransport() {
     fetchCustomer();
     fetchRouteTemplate();
   }, []);
-  
   //เพิ่มข้อมูลลูกค้า ลงไปในข้อมูลเดิม
   const [editFormData, setEditFormData] = useState({});
   const handleChangeEdit = (event) => {
@@ -107,14 +107,14 @@ function DetailGroupTransport() {
 
     try {
       const customer = {
-        customer_id: selectedCustomer._id,
+        customer_id: selectedCustomer.customer_id._id,
         name: selectedCustomer.name,
         address: selectedCustomer.address,
         latitude: selectedCustomer.lat,
         longitude: selectedCustomer.long,
         map_url: selectedCustomer.map_url,
         delivery_type: selectedCustomer.delivery_type,
-        shipping_company: selectedCustomer.shipping_company,
+        shipping_company: selectedCustomer.shipping_company._id,
         // sequence: selectedCustomer.shipping_company,
       };
       console.log(selectedCustomer);
@@ -349,6 +349,18 @@ function DetailGroupTransport() {
                       />
                     </Form.Group>
                   </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formCustomerMapUrl" className="mt-3">
+                      <Form.Label>customer</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="customer_id"
+                        disabled
+                        onChange={handleChangeEdit}
+                        value={selectedCustomer?._id || ""}
+                      />
+                    </Form.Group>
+                  </Col>
                 </Row>
                 <Row>
                   <Col md={6}>
@@ -363,13 +375,6 @@ function DetailGroupTransport() {
                         disabled
                         onChange={handleChangeEdit}
                         value={selectedCustomer?.lat || ""}
-                      />
-                      <Form.Control
-                        type="text"
-                        name="customer_id"
-                        disabled
-                        onChange={handleChangeEdit}
-                        value={selectedCustomer?._id || ""}
                       />
                     </Form.Group>
                   </Col>
@@ -456,7 +461,6 @@ function DetailGroupTransport() {
         </Modal>
         {/* 
         Delete Modal */}
-        
         {selectedCustomer && (
           <Modal
             show={modalType === "delete" && showModal}

@@ -43,7 +43,6 @@ const DetailWork = () => {
     }, 3000);
   };
 
-
   return (
     <DriverLayout>
       <Container className="mt-2">
@@ -133,6 +132,62 @@ const DetailWork = () => {
                       <strong>{customer.tel}</strong>
                     </span>
                   </p>
+                </div>
+              </Col>
+            </Row>
+
+            {/* Upload Delivery Images */}
+            <Row className="mb-4">
+              <Col xs={12} className="text-center">
+                <h5 className="fw-bold mb-3" style={{ color: "#333" }}>
+                  รูปภาพการจัดส่งสินค้า
+                </h5>
+                <div className="d-flex justify-content-center gap-3 flex-wrap">
+                  {[1, 2, 3, 4, 5, 6].map((item, index) => (
+                    <div key={index} className="position-relative">
+                      <Form.Group
+                        controlId={`uploadImage${item}`}
+                        className="upload-container"
+                      >
+                        <Form.Control
+                          type="file"
+                          className="d-none"
+                          id={`imageUpload${item}`}
+                          onChange={(e) => {
+                            // แสดงภาพที่ถูกเลือก
+                            const file = e.target.files[0];
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              const imagePreview = document.getElementById(
+                                `imagePreview${item}`
+                              );
+                              imagePreview.src = reader.result;
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                        <div
+                          onClick={() =>
+                            document
+                              .getElementById(`imageUpload${item}`)
+                              .click()
+                          }
+                          className="image-upload-box d-flex justify-content-center align-items-center"
+                        >
+                          <span style={{ fontSize: "2rem", color: "#007bff" }}>
+                            +
+                          </span>
+                        </div>
+                        {/* แสดงภาพตัวอย่างหลังการเลือก */}
+                        <img
+                          id={`imagePreview${item}`}
+                          src=""
+                          alt={`Preview ${item}`}
+                          className="img-preview"
+                        />
+                      </Form.Group>
+                    </div>
+                  ))}
                 </div>
               </Col>
             </Row>

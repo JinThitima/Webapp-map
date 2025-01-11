@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import {
   Navbar,
   Nav,
-  NavDropdown,
   Container,
   Modal,
   Button,
 } from "react-bootstrap";
-import { FaHome, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaSignOutAlt } from "react-icons/fa";
 import "./DriverNavbar.css"; // Add a CSS file for custom styles
 
 function DriverNavbar() {
@@ -25,9 +24,9 @@ function DriverNavbar() {
       <Container>
         <Navbar.Brand href="/AcceptingWork">
           <img
-            src="./images/LogoDark.png"
+            src="../images/LogoDark.png"
             alt="Company Logo"
-            width="150"
+            width="100"
             height="60"
             className="d-inline-block align-top"
           />
@@ -39,27 +38,13 @@ function DriverNavbar() {
             style={{ flex: 9, justifyContent: "center" }}
           ></Nav>
           <Nav>
-            <Nav.Link
+            {/* <Nav.Link
               href="/AcceptingWork"
               className="d-flex align-items-center nav-link"
               style={{ color: "#ffffff" }}
             >
               <FaHome style={{ fontSize: "2rem" }} />
-            </Nav.Link>
-            <NavDropdown
-              className="me-3 d-flex align-items-center nav-link"
-              id="user-dropdown"
-              title={
-                <FaUserCircle style={{ fontSize: "2rem", color: "#fff" }} />
-              }
-            >
-              <NavDropdown.Item href="/Profile">
-                ดูข้อมูลส่วนตัว
-              </NavDropdown.Item>
-              <NavDropdown.Item onClick={handleShow}>
-                แก้ไขข้อมูลส่วนตัว
-              </NavDropdown.Item>
-            </NavDropdown>
+            </Nav.Link> */}
             <Nav.Link
               href="/"
               className="d-flex align-items-center nav-link"

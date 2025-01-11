@@ -1,183 +1,152 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Row, Col } from "react-bootstrap";
-import CustomersService from "./services/CustomersService";
-import ShippingCompaniesService from "./services/ShippingCompaniesService";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Form,
+  Container,
+  Row,
+  Col,
+  Table,
+  InputGroup,
+  FormControl,
+  Dropdown,
+} from "react-bootstrap";
+import StaffLayout from "../../layouts/StaffLayout";
+import RoutetemplatesService from "../../server/Route_template";
+import Ship_worksService from "../../server/Ship_work";
+import { useNavigate, useParams } from "react-router-dom";
 
-const Customer = () => {
-  const [customers, setCustomers] = useState([]);
-  const [customer, setCustomer] = useState([]);
+function AddCustomer() {
+  const params = useParams();
+  const { id } = params;
+  const navigate = useNavigate();
+
+  const [routetemplate, setRoutetemplates] = useState([]);
+  const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [shipwork, setShipworks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [shippingCompanies, setShippingCompanies] = useState([]);
+  const [selectedRoute, setSelectedRoute] = useState("");
 
-  const [transportType, setTransportType] = useState("");
-  const [privateTransport, setPrivateTransport] = useState("");
-
-  // ดึงข้อมูลลูกค้า
-  const fetchCustomer = async () => {
+  const fetchShipwork = async () => {
     try {
-      const res = await CustomersService.getAll();
-      setCustomer(res.data.data || []);
+      const res = await Ship_worksService.get(id);
+      setShipworks(res.data.data);
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
   };
 
-  // ดึงข้อมูลชื่อขนส่งจากฐานข้อมูล
-  const fetchShippingCompanies = async () => {
+  const fetchRouteTemplate = async () => {
     try {
-      const res = await ShippingCompaniesService.getAll();
-      setShippingCompanies(res.data.data || []); // เก็บข้อมูลขนส่ง
+      const res = await RoutetemplatesService.getAll();
+      setRoutetemplates(res.data.data || []);
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
   };
 
   useEffect(() => {
-    fetchCustomer();
-    fetchShippingCompanies();
+    fetchRouteTemplate();
+    fetchShipwork();
   }, []);
 
-  const handleAddClose = () => setShowAddModal(false);
-  const handleEditClose = () => setShowEditModal(false);
-  const handleDeleteClose = () => setShowDeleteModal(false);
-
-  const handleShowAdd = () => {
-    setSelectedCustomer(null);
-    setShowAddModal(true);
+  const handleCheckboxChange = (customerId) => {
+    setSelectedCustomers((prevSelected) =>
+      prevSelected.includes(customerId)
+        ? prevSelected.filter((id) => id !== customerId)
+        : [...prevSelected, customerId]
+    );
   };
 
-  const handleShowEdit = (customer) => {
-    setSelectedCustomer(customer);
-    setShowEditModal(true);
-  };
-
-  const handleShowDelete = (customer) => {
-    setSelectedCustomer(customer);
-    setShowDeleteModal(true);
-  };
-
-  const handleTransportTypeChange = (event) => {
-    setTransportType(event.target.value);
-    if (event.target.value !== "private") {
-      setPrivateTransport("");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      for (const customerId of selectedCustomers) {
+        await Ship_worksService.addCustomer(id, { customer_id: customerId });
+      }
+      alert("Added selected customers to the shipwork successfully!");
+      navigate(`/shipwork/${id}`);
+    } catch (e) {
+      console.log(e);
+      alert("An error occurred while adding customers");
     }
   };
 
+  const filteredCustomers = routetemplate
+    .filter((route) => (selectedRoute ? route.id === selectedRoute : true))
+    .flatMap((route) =>
+      route.customers.filter((customer) =>
+        customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+
   return (
-    <Modal show={showAddModal} onHide={handleAddClose} size="lg">
-      <Modal.Header closeButton className="modal-header-add">
-        <Modal.Title>เพิ่มข้อมูลลูกค้า</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          {/* ฟอร์มข้อมูลลูกค้า */}
-          <Row>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerShopName">
-                <Form.Label>ชื่อร้านค้า</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerOwnerFirstName">
-                <Form.Label>ชื่อเจ้าของร้าน</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerOwnerLastName">
-                <Form.Label>นามสกุลเจ้าของร้าน</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerPhone">
-                <Form.Label>เบอร์ติดต่อ</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerLatitude">
-                <Form.Label>ละติจูด</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="formCustomerLongitude">
-                <Form.Label>ลองติจูด</Form.Label>
-                <Form.Control type="text" />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Form.Group controlId="formCustomerAddress">
-            <Form.Label>ที่อยู่</Form.Label>
-            <Form.Control as="textarea" rows={2} />
-          </Form.Group>
-
-          <Form.Group controlId="formCustomerMapUrl">
-            <Form.Label>แผนที่ URL</Form.Label>
-            <Form.Control type="text" />
-          </Form.Group>
-
-          <Form.Group controlId="formCustomerImage">
-            <Form.Label>ภาพร้านค้า</Form.Label>
-            <Form.Control type="file" />
-          </Form.Group>
-
-          <Row className="mb-3">
-            {/* ประเภทขนส่ง */}
-            <Form.Group as={Col} controlId="transportType">
-              <Form.Label>ประเภทขนส่ง</Form.Label>
-              <Form.Select
-                value={transportType}
-                onChange={handleTransportTypeChange}
-              >
-                <option value="">-- กรุณาเลือกประเภทขนส่ง --</option>
-                <option value="company">รถบริษัท</option>
-                <option value="private">ขนส่งเอกชน</option>
-              </Form.Select>
-            </Form.Group>
-
-            {transportType === "private" && (
-              <Form.Group as={Col} controlId="privateTransport">
-                <Form.Label>เลือกชื่อขนส่งเอกชน</Form.Label>
-                <Form.Select
-                  value={privateTransport}
-                  onChange={(e) => setPrivateTransport(e.target.value)}
-                >
-                  <option value="">-- กรุณาเลือกชื่อขนส่ง --</option>
-                  {shippingCompanies.map((company) => (
-                    <option key={company.id} value={company.name}>
-                      {company.name}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            )}
-          </Row>
+    <StaffLayout>
+      <Container className="my-4">
+        <h2 className="text-center mb-4">เพิ่มร้านค้าที่ต้องการจัดส่ง</h2>
+        <Row className="mb-3">
+          <Col md={6}>
+            <InputGroup>
+              <FormControl
+                placeholder="ค้นหาร้านค้า..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+          <Col md={6} className="text-end">
+            <Dropdown onSelect={(e) => setSelectedRoute(e)}>
+              <Dropdown.Toggle variant="outline-primary">
+                {selectedRoute ? `เส้นทาง: ${selectedRoute}` : "กรองตามเส้นทาง"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item eventKey="">ทั้งหมด</Dropdown.Item>
+                {routetemplate.map((route) => (
+                  <Dropdown.Item key={route.id} eventKey={route.id}>
+                    {route.name}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </Col>
+        </Row>
+        <Form onSubmit={handleSubmit}>
+          <Table striped bordered hover responsive>
+            <thead className="table-primary">
+              <tr>
+                <th>#</th>
+                <th>ชื่อเส้นทาง</th>
+                <th>ชื่อร้านค้า</th>
+                <th>ที่อยู่</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCustomers.map((customer, index) => (
+                <tr key={index}>
+                  <td>
+                    <Form.Check
+                      type="checkbox"
+                      value={customer.customer_id}
+                      onChange={() =>
+                        handleCheckboxChange(customer.customer_id)
+                      }
+                    />
+                  </td>
+                  <td>{customer.routeName}</td>
+                  <td>{customer.name}</td>
+                  <td>{customer.address}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <div className="text-center mt-4">
+            <Button variant="primary" type="submit">
+              บันทึกการเลือก
+            </Button>
+          </div>
         </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="outline-secondary" onClick={handleAddClose}>
-          ปิด
-        </Button>
-        <Button variant="outline-primary" onClick={handleAddClose}>
-          บันทึกข้อมูล
-        </Button>
-      </Modal.Footer>
-    </Modal>
+      </Container>
+    </StaffLayout>
   );
-};
+}
 
-export default Customer;
+export default AddCustomer;

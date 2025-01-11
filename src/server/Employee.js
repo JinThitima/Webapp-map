@@ -1,22 +1,51 @@
 import http from "../http-common.js";
 
-const getAll = () => {
-  return http.get("/employees");
+const getAll = async() => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+  return await http.get("/employees");
+};
+
+const userInfo = () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+
+  return http.get("/employees/info");
 };
 
 const get = (id) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
   return http.get("/employees/" + id);
 };
 
 const create = (user) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
   return http.post("/employees", user);
 };
 
 const deleteEmployees = (id) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
   return http.delete("/employees/" + id);
 };
 
 const updateEmployees = (id, user) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
   return http.put("/employees/" + id, user);
 };
 
@@ -33,14 +62,21 @@ const getEmployees = async () => {
 };
 
 export { getEmployees };
+  
+const login = async (loginData) => {
+    return await http.post("/employees/login", loginData);g
+};
+
 
 const EmployeesService = {
+  userInfo,
   getAll,
   get,
   create,
   deleteEmployees,
   updateEmployees,
   getEmployees,
+  login,
 };
 
 export default EmployeesService;

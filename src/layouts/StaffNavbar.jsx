@@ -1,19 +1,13 @@
 import React, { useState } from "react";
 import { Navbar, Nav, NavDropdown, Container } from "react-bootstrap";
 import {
-  FaBell,
-  FaTachometerAlt,
   FaTruck,
   FaBuilding,
   FaCar,
   FaUsers,
-  FaUser,
   FaShippingFast,
   FaFileAlt,
   FaRoute,
-  FaChartLine,
-  FaMapMarkedAlt,
-  FaGasPump,
   FaSignOutAlt,
 } from "react-icons/fa";
 
@@ -197,7 +191,7 @@ function StaffNavbar() {
             >
               <FaBell className="me-1" />
             </Nav.Link> */}
-            <NavDropdown
+            {/* <NavDropdown
               className="me-3 d-flex align-items-center nav-link"
               id="user-dropdown"
               title={
@@ -213,7 +207,7 @@ function StaffNavbar() {
               }
             >
               <NavDropdown.Item href="/DetailUser">ดูโปรไฟล์</NavDropdown.Item>
-            </NavDropdown>
+            </NavDropdown> */}
             <Nav.Link
               href="/"
               className="d-flex align-items-center nav-link"

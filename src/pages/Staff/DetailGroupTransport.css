@@ -3,3 +3,6 @@ hr {
   border-radius: 5px; /* ทำให้มุมเส้นโค้ง */
   margin: 20px 0; /* กำหนดระยะห่างจากบน-ล่าง */
 }
+.form-control {
+  max-width: 500px; /* Example value, adjust as needed */
+}

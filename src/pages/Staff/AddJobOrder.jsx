@@ -1,248 +1,368 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Modal,
-  Form,
-  Container,
-  Row,
-  Col,
-  Table,
-  Alert,
-} from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Button, Form, Container, Row, Col } from "react-bootstrap";
 import StaffLayout from "../../layouts/StaffLayout";
-
+import VehiclesService from "../../server/Vehicle";
+import EmployeesService from "../../server/Employee";
+import RoutetemplatesService from "../../server/Route_template";
+import Ship_worksService from "../../server/Ship_work";
+import { FaClipboard } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function AddJobOrder() {
-  const [showDetails, setShowDetails] = useState(false);
-  const [selectedShops, setSelectedShops] = useState([]);
-  const [selectedShopDetails, setSelectedShopDetails] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate()
+  const [vechicles, setVehicles] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [routetemplate, setRoutetemplates] = useState([]);
+  const [userInfo,setUserInfo] = useState([])
+  const [formData, setFormData] = useState({
+    workID: "",
+    status: "รอการอนุมัติ",
+    date_worksheet: "",
+    delivery_date: "",
+    expected_start_time: "",
+    expected_finish_time: "",
+    spots: "",
+    driver_id: "",
+    vechicle_id: "",
+    organizer_id:""
+  });
+const [workIdData, setWorkIdData] = useState({
+  workCount: 0,
+});
 
-  const handleSave = () => {
-    setShowDetails(true);
+useEffect(() => {
+  // เมื่อโหลดข้อมูลจาก localStorage
+  const storedWorkCount = localStorage.getItem("workCount");
+
+  if (storedWorkCount) {
+    setWorkIdData((prev) => ({
+      ...prev,
+      workCount: parseInt(storedWorkCount, 10),
+    }));
+  }
+}, []);
+
+// สร้าง workID ใหม่เมื่อ workCount เปลี่ยน
+useEffect(() => {
+  const currentDate = new Date();
+  const formattedDate = `${String(currentDate.getFullYear()).slice(-2)}${String(
+    currentDate.getMonth() + 1
+  ).padStart(2, "0")}${String(currentDate.getDate()).padStart(2, "0")}`;
+
+  const newWorkID = `PTN.${formattedDate}-${String(
+    workIdData.workCount
+  ).padStart(2, "0")}`;
+
+  setFormData((prev) => ({
+    ...prev,
+    workID: newWorkID,
+    date_worksheet: currentDate.toISOString().split("T")[0],
+  }));
+}, [workIdData.workCount]);
+
+// เพิ่ม count เมื่อมีการรีเฟรช
+const handleIncreaseWorkCount = () => {
+  setWorkIdData((prev) => {
+    const newCount = prev.workCount + 1;
+    localStorage.setItem("workCount", newCount); // เก็บข้อมูลใหม่ใน localStorage
+    return {
+      ...prev,
+      workCount: newCount, // อัพเดทค่าของ workCount
+    };
+  });
+};
+
+// ค่าของฟอร์ม
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+// เมื่อ component ถูกโหลดครั้งแรกจะเพิ่ม workCount
+useEffect(() => {
+  handleIncreaseWorkCount(); // เพิ่ม workCount เมื่อมีการรีเฟรช
+}, []);
+
+
+
+
+
+const fetchData = async () => {
+  try {
+    const [vechiclesRes, routesRes, employeesRes, userInfoRes] =
+      await Promise.all([
+        VehiclesService.getAll(),
+        RoutetemplatesService.getAll(),
+        EmployeesService.getAll(),
+        EmployeesService.userInfo(), // แก้ไขเพื่อให้เป็นการเรียก API ที่ถูกต้อง
+      ]);
+
+    // แสดงข้อมูลในสถานะต่างๆ
+    setVehicles(vechiclesRes.data.data);
+    setRoutetemplates(routesRes.data.data);
+    setUserInfo(userInfoRes.data.data); // ใช้ userInfoRes ที่ได้รับ
+    setEmployees(
+      employeesRes.data.data.filter(
+        (emp) => emp.type === "พนักงานขับรถส่งสินค้า"
+      )
+    );
+
+    // ตั้งค่า formData
+    setFormData((prevData) => ({
+      ...prevData,
+      organizer_id: userInfoRes.data.data._id, // เก็บแค่ _id
+    }));
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
+  }
+};
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const validateForm = () => {
+    const required = [
+      "delivery_date",
+      "spots",
+      "expected_start_time",
+      "expected_finish_time",
+      "vechicle_id",
+      "driver_id",
+      "organizer_id",
+    ];
+
+    return required.every((field) => formData[field]);
   };
 
-  const handleCheckboxChange = (shop) => {
-    setSelectedShops((prevState) => {
-      if (prevState.includes(shop)) {
-        return prevState.filter((item) => item !== shop);
-      } else {
-        return [...prevState, shop];
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!validateForm()) {
+      console.log(validateForm)
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    try {
+      const response = await Ship_worksService.create({
+        ...formData,
+        date_worksheet: new Date(formData.date_worksheet).toISOString(),
+        delivery_date: new Date(formData.delivery_date).toISOString(),
+      });
+      const { _id } = response.data;
+      if (response.status === 201) {
+        alert("บันทึกข้อมูลสำเร็จ");
+        navigate("/DeliveryJobOrder");
+        setFormData({
+          workID: "",
+          status: "รอการอนุมัติ",
+          date_worksheet: "",
+          delivery_date: "",
+          expected_start_time: "",
+          expected_finish_time: "",
+          spots: "",
+          driver_id: "",
+          vechicle_id: "",
+          organizer_id:""
+        });
       }
-    });
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
   };
-
-  const handleSaveDetails = () => {
-    // Here you can save the selected shops for the job order
-    alert("ข้อมูลถูกบันทึกแล้ว!");
-  };
-
-  const filteredShops = [
-    { id: 1, name: "ร้าน ก", route: "เส้นทาง 1", address: "123/4 ม.1" },
-    { id: 2, name: "ร้าน ข", route: "เส้นทาง 2", address: "56/7 ม.2" },
-    { id: 3, name: "ร้าน ค", route: "เส้นทาง 3", address: "89/10 ม.3" },
-  ].filter((shop) =>
-    shop.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <StaffLayout>
       <Container className="my-4">
-        {/* กรอบกราดที่ 1 */}
-        <div className="border p-4 mb-4 shadow-sm rounded">
-          {/* หัวข้อหลัก */}
-          <Row className="mb-4">
-            <Col md={9}>
-              <h3 className="fw-bold text-primary">
-                ใบงาน เลขที่ PTN231167-01
-              </h3>
-            </Col>
-            <Col md={3}>
-              <Alert
-                variant="info"
-                className="d-flex justify-content-center align-items-center py-4 mb-0"
-              >
-                <h5 className="text-dark mb-0">เพิ่มใบงาน</h5>
-              </Alert>
-            </Col>
-          </Row>
-          {/* หัวข้อรอง */}
-          <h5 className="fw-semibold text-secondary">รายละเอียดใบงาน</h5>
+        {/* Header Section */}
+        <Row className="my-4 align-items-center">
+          <Col md={12} className="text-center">
+            <h2
+              className="main-title fw-bold"
+              style={{ fontSize: "2rem", color: "#000000" }}
+            >
+              <span className="d-inline-flex align-items-center">
+                <FaClipboard size={35} className="me-2" />
+                เพิ่มใบงานใหม่
+              </span>
+            </h2>
+            <hr className="border-3 bg-black my-3" />
+          </Col>
+        </Row>
 
-          {/* ฟอร์มข้อมูล */}
-          <div className="border p-3 mb-3 mt-4">
-            {/* แถววันที่จัดส่ง */}
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group controlId="deliveryDate">
-                  <Form.Label className=" fw-medium text-dark">
-                    วันที่จัดส่ง
-                  </Form.Label>
-                  <Form.Control type="date" />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* แถวข้อมูลยานพาหนะและพนักงานขับรถ */}
-            <Row className="mb-3">
+        {/* Form Section */}
+        <Form onSubmit={handleSubmit}>
+          <div
+            className="border p-4 shadow-lg rounded mb-4"
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Row className="mb-4">
               <Col md={6}>
-                <Form.Group controlId="vehicle">
-                  <Form.Label className=" fw-medium text-dark">
-                    ยานพาหนะ
+                <Form.Group controlId="workID">
+                  <Form.Label className="fw-bold text-secondary">
+                    รหัสใบงาน
                   </Form.Label>
-                  <Form.Select>
-                    <option>เลือกยานพาหนะ</option>
-                    <option>ยานพาหนะ 1</option>
-                    <option>ยานพาหนะ 2</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="driver">
-                  <Form.Label className="fw-medium text-dark">
-                    พนักงานขับรถ
-                  </Form.Label>
-                  <Form.Select>
-                    <option>เลือกพนักงานขับรถ</option>
-                    <option>พนักงาน 1</option>
-                    <option>พนักงาน 2</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* แถวเวลาจัดส่งและเวลาจัดส่งเสร็จสิ้น */}
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="deliveryTime">
-                  <Form.Label className="fw-medium text-dark">
-                    เวลาจัดส่ง
-                  </Form.Label>
-                  <Form.Control type="time" />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="deliveryEndTime">
-                  <Form.Label className=" fw-medium text-dark">
-                    เวลาจัดส่งเสร็จสิ้น
-                  </Form.Label>
-                  <Form.Control type="time" />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* ปุ่มบันทึกข้อมูล */}
-            <div className="d-flex justify-content-end mt-4">
-              <Button
-                variant="success"
-                onClick={handleSave}
-                className="px-4 py-2 fw-semibold"
-              >
-                บันทึกข้อมูล
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {showDetails && (
-          <>
-            {/* กรอบกราดที่ 2 */}
-            <div className="border p-4 mb-4 shadow-sm rounded">
-              <Row className="mb-3">
-                <Col md={4}>
-                  <h5 className="fw-semibold text-secondary">
-                    รายการร้านค้าที่จัดส่ง
-                  </h5>
-                </Col>
-                <Col md={8} className="d-flex">
                   <Form.Control
                     type="text"
-                    placeholder="ค้นหาชื่อร้าน"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    name="workID"
+                    value={formData.workID}
+                    onChange={handleChange}
+                    readOnly
+                    className="border rounded p-2"
                   />
-                  <Button variant="primary" className="ms-3">
-                    ค้นหา
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="workID">
+                  <Form.Label className="fw-bold text-secondary">
+                    userInfo
+                  </Form.Label>
+                  <input
+                    type="hidden"
+                    name="inspector"
+                    value={formData.organizer_id?._id}
+                  />
+                  <Form.Control
+                    type="text"
+                    name="workID"
+                    value={userInfo.name}
+                    disabled
+                    onChange={handleChange}
+                    readOnly
+                    className="border rounded p-2"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <h5 className="fw-semibold text-secondary">รายละเอียดใบงาน</h5>
+            <div className="border p-3 mt-4">
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Group controlId="delivery_date">
+                    <Form.Label className="fw-medium">วันที่จัดส่ง</Form.Label>
+                    <Form.Control
+                      type="date"
+                      name="delivery_date"
+                      value={formData.delivery_date}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group controlId="spots">
+                    <Form.Label className="fw-medium">
+                      เส้นทางการจัดส่ง
+                    </Form.Label>
+                    <Form.Select
+                      name="spots"
+                      onChange={handleChange}
+                      value={formData.spots}
+                      required
+                    >
+                      <option value="">เลือกเส้นทางการจัดส่ง</option>
+                      {routetemplate.map((rtp) => (
+                        <option key={rtp.id} value={rtp.name}>
+                          {rtp.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Group controlId="expected_start_time">
+                    <Form.Label className="fw-medium">
+                      เวลาคาดว่าจะเริ่มจัดส่ง
+                    </Form.Label>
+                    <Form.Control
+                      type="time"
+                      name="expected_start_time"
+                      value={formData.expected_start_time}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group controlId="vechicle_id">
+                    <Form.Label className="fw-medium">ยานพาหนะ</Form.Label>
+                    <Form.Select
+                      name="vechicle_id"
+                      onChange={handleChange}
+                      value={formData.vechicle_id}
+                      required
+                    >
+                      <option value="">เลือกยานพาหนะ</option>
+                      {vechicles.map((vechicle) => (
+                        <option key={vechicle._id} value={vechicle._id}>
+                          {vechicle.register_number}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Group controlId="expected_finish_time">
+                    <Form.Label className="fw-medium">
+                      เวลาคาดว่าจะจัดส่งเสร็จสิ้น
+                    </Form.Label>
+                    <Form.Control
+                      type="time"
+                      name="expected_finish_time"
+                      value={formData.expected_finish_time}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group controlId="driver_id">
+                    <Form.Label className="fw-medium">พนักงานขับรถ</Form.Label>
+                    <Form.Select
+                      name="driver_id"
+                      onChange={handleChange}
+                      value={formData.driver_id}
+                      required
+                    >
+                      <option value="">เลือกพนักงานขับรถ</option>
+                      {employees.map((employee) => (
+                        <option key={employee._id} value={employee._id}>
+                          {employee.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col className="d-flex justify-content-center mt-3">
+                  <Button
+                    type="submit"
+                    variant="success"
+                    className="px-5 py-2 fw-bold"
+                    style={{ fontSize: "1.1rem" }}
+                  >
+                    บันทึกข้อมูล
                   </Button>
                 </Col>
               </Row>
-
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th className="fw-bold">เลือก</th>
-                    <th className="fw-bold">กลุ่มเส้นทาง</th>
-                    <th className="fw-bold">ชื่อร้านค้า</th>
-                    <th className="fw-bold">ที่อยู่</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredShops.map((shop) => (
-                    <tr key={shop.id}>
-                      <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => handleCheckboxChange(shop)}
-                        />
-                      </td>
-                      <td>{shop.route}</td>
-                      <td>{shop.name}</td>
-                      <td>{shop.address}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
             </div>
-
-            {/* กรอบกราดที่ 3 */}
-            <div className="border p-3 mb-3 shadow-sm">
-              <Row className="mb-3">
-                <Col
-                  md={2}
-                  className="d-flex align-items-center justify-content-center"
-                >
-                  {/* หัวข้อ 'รายการที่เลือก' อยู่กึ่งกลางทั้งซ้ายขวาและบนล่าง */}
-                  <h5 className="fw-semibold text-secondary">รายการที่เลือก</h5>
-                </Col>
-                <Col md={10}>
-                  {/* Dismissable Alert แสดงข้อมูลร้านค้า */}
-                  {selectedShops.map((shop) => (
-                    <Alert
-                      variant="primary"
-                      className="mb-1"
-                      dismissible
-                      key={shop.id}
-                    >
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center">
-                          <strong className="me-2">{shop.name}</strong>
-                        </div>
-                        <div className="badge d-flex align-items-center">
-                          <div className="badge bg-warning text-dark px-3 py-2 mx-2 rounded">
-                            เวลาที่ออกจัดส่ง : 12:00
-                          </div>
-                          <div className="badge bg-success text-white px-3 py-2 mx-2 rounded">
-                            เวลาเสร็จสิ้นการจัดส่ง : 12:30
-                          </div>
-                        </div>
-                      </div>
-                    </Alert>
-                  ))}
-                </Col>
-                {/* ปุ่มบันทึกข้อมูล */}
-              </Row>
-              <div className="d-flex justify-content-end mt-4">
-                <Button
-                  variant="success"
-                  onClick={handleSave}
-                  className="px-4 py-2 fw-semibold"
-                >
-                  บันทึกข้อมูล
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+          </div>
+        </Form>
       </Container>
     </StaffLayout>
   );

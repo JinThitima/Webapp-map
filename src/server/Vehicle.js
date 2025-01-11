@@ -8,6 +8,10 @@ const get = (register_number) => {
   return http.get("/vehicles/" + register_number);
 };
 
+const getById = (id) => {
+  return http.get("/vehicles/" + id);
+};
+
 const create = (user) => {
   return http.post("/vehicles", user);
 };
@@ -26,6 +30,7 @@ const VehiclesService = {
   create,
   deleteVehicles,
   updateVehicles,
+  getById,
 };
 
 export default VehiclesService;
